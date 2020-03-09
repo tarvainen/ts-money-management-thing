@@ -1,7 +1,7 @@
 import { CommandInterface } from '../../interfaces'
 
 export class WithdrawMoneyCommand implements CommandInterface {
-  public static kind: string = 'withdrawMoney'
+  public static readonly kind: string = 'withdrawMoney'
 
   constructor(
     public readonly entityId: string,

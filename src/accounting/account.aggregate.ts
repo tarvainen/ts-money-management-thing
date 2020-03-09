@@ -1,13 +1,15 @@
 import { CommandInterface } from '../interfaces/command.interface'
+import { DomainEventInterface } from '../interfaces'
 import {
   DepositMoneyCommand,
   WithdrawMoneyCommand,
   CreateAccountCommand
 } from './commands'
-import { DomainEventInterface } from '../interfaces'
-import { AccountCreatedEvent } from './events/account-created.event'
-import { AccountDepositedEvent } from './events/account-deposited.event'
-import { AccountWithdrawnEvent } from './events/account-withdrawn.event'
+import {
+  AccountCreatedEvent,
+  AccountDepositedEvent,
+  AccountWithdrawnEvent
+} from './events'
 
 export default class AccountAggregate {
   private id: string

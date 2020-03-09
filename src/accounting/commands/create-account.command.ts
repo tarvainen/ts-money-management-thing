@@ -1,7 +1,7 @@
 import { CommandInterface } from '../../interfaces'
 
 export class CreateAccountCommand implements CommandInterface {
-  public static kind: string = 'createAccount'
+  public static readonly kind: string = 'createAccount'
 
   constructor(
     public readonly entityId: string,
