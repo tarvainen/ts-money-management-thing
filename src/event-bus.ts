@@ -1,11 +1,8 @@
+import { Subject } from 'rxjs'
 import { DomainEventInterface } from './interfaces'
 
 class EventBus {
-  private handler: Function = () => {}
-
-  setHandler(callback: Function) {
-    this.handler = callback
-  }
+  constructor(public events: Subject<DomainEventInterface> = new Subject()) { }
 
   dispatchMany(events: DomainEventInterface[]) {
     for (const event of events) {
@@ -18,7 +15,7 @@ class EventBus {
   }
 
   private handleEvent(event: DomainEventInterface) {
-    this.handler(event)
+    this.events.next(event)
   }
 }
 

@@ -1,5 +1,6 @@
 import fastify from 'fastify'
 import { v4 as uuidv4 } from 'uuid'
+import { filter } from 'rxjs/operators'
 import commandBus from './command-bus'
 import {
   DepositMoneyCommand,
@@ -47,43 +48,40 @@ server.post('/account/:accountId/withdraw', async (request) => {
   ))
 })
 
-eventBus.setHandler((event: DomainEventInterface) => {
-  const storeKey = `readmodel.account.${event.entityId}`
+eventBus.events
+  .pipe(
+    filter(x => x.kind === AccountCreatedEvent.kind)
+  )
+  .subscribe(event => {
+    const storeKey = `readmodel.account.${event.entityId}`
 
-  switch (event.kind) {
-    case AccountCreatedEvent.kind: {
-      const account = {
-        id: event.entityId,
-        ownerName: event.payload.ownerName,
-        currentBalance: event.payload.initialBalance,
-        createdAt: event.payload.time
-      } as AccountReadModelInterface
+    const account = {
+      id: event.entityId,
+      ownerName: event.payload.ownerName,
+      currentBalance: event.payload.initialBalance,
+      createdAt: event.payload.time
+    } as AccountReadModelInterface
 
-      store.set(storeKey, account)
-      break
-    }
-    case AccountDepositedEvent.kind: {
-      const account = {
-        ...store.get(storeKey),
-        currentBalance: event.payload.currentBalance,
-        lastUpdatedAt: event.payload.time
-      } as AccountReadModelInterface
+    store.set(storeKey, account)
+  })
 
-      store.set(storeKey, account)
-      break
-    }
-    case AccountWithdrawnEvent.kind: {
-      const account = {
-        ...store.get(storeKey),
-        currentBalance: event.payload.currentBalance,
-        lastUpdatedAt: event.payload.time
-      } as AccountReadModelInterface
+eventBus.events
+  .pipe(
+    filter(x =>
+      [AccountDepositedEvent.kind, AccountWithdrawnEvent.kind]
+        .includes(x.kind))
+  )
+  .subscribe(event => {
+    const storeKey = `readmodel.account.${event.entityId}`
 
-      store.set(storeKey, account)
-      break
-    }
-  }
-})
+    const account = {
+      ...store.get(storeKey),
+      currentBalance: event.payload.currentBalance,
+      lastUpdatedAt: event.payload.time
+    } as AccountReadModelInterface
+
+    store.set(storeKey, account)
+  })
 
 const port = 3000
 
